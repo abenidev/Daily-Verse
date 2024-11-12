@@ -1,8 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:objectbox/objectbox.dart';
 
+@Entity()
 class Verse {
+  @Id()
+  int id;
   final int o;
   final String biv;
   final String bna;
@@ -14,6 +18,7 @@ class Verse {
   final int? hnu;
 
   Verse({
+    this.id = 0,
     required this.o,
     required this.biv,
     required this.bna,

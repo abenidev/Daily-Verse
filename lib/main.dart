@@ -1,5 +1,6 @@
 import 'package:daily_verse/constants/app_strings.dart';
 import 'package:daily_verse/helpers/app_init_helper.dart';
+import 'package:daily_verse/helpers/object_box_helper.dart';
 import 'package:daily_verse/providers/appearance_provider.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -10,6 +11,9 @@ import 'package:logger/logger.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 var logger = Logger();
+
+late NivObjectBox nivObjectBox;
+late AmvObjectBox amvObjectBox;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,6 +94,13 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
     if (mounted) {
       AppInit.initAppData(context, ref);
     }
+
+    //!objectbox
+    nivObjectBox = await NivObjectBox.create();
+    amvObjectBox = await AmvObjectBox.create();
+
+    bool isDataLoaded = await BoxLoader.loadData(ref);
+    debugPrint('isDataLoaded: ${isDataLoaded}');
   }
 
   @override

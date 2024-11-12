@@ -30,4 +30,14 @@ class SharedPrefsHelper {
   static bool isIntroShown() {
     return getBoolAsync(kIsIntroShownKey, defaultValue: false);
   }
+
+  //-------------------- isTranslationsLoaded------------------------------
+
+  static Future<bool> setIsTranslationsLoaded(bool newVal) async {
+    return await setValue(kIsTranslationsLoadedSharedPrefKey, newVal);
+  }
+
+  static bool isTranslationsLoaded() {
+    return getBoolAsync(kIsTranslationsLoadedSharedPrefKey, defaultValue: false);
+  }
 }

@@ -1,0 +1,77 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:7435368780268513428",
+      "lastPropertyId": "10:6824343489934541948",
+      "name": "Verse",
+      "properties": [
+        {
+          "id": "1:5248859571142686532",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3146336720481937675",
+          "name": "o",
+          "type": 6
+        },
+        {
+          "id": "3:1250540152611050746",
+          "name": "biv",
+          "type": 9
+        },
+        {
+          "id": "4:4981634119903520363",
+          "name": "bna",
+          "type": 9
+        },
+        {
+          "id": "5:1141398271113391824",
+          "name": "bnu",
+          "type": 6
+        },
+        {
+          "id": "6:8803773772837249189",
+          "name": "ch",
+          "type": 6
+        },
+        {
+          "id": "7:7682763479167734549",
+          "name": "v",
+          "type": 27
+        },
+        {
+          "id": "8:1251470388886999841",
+          "name": "t",
+          "type": 9
+        },
+        {
+          "id": "9:3977524195628587659",
+          "name": "h",
+          "type": 9
+        },
+        {
+          "id": "10:6824343489934541948",
+          "name": "hnu",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:7435368780268513428",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
