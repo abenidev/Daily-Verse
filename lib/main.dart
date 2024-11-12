@@ -89,18 +89,19 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
   }
 
   _init() async {
-    ref.read(appearanceProvider.notifier).loadAppearance();
-    await AppInit.initLocalNotif();
-    if (mounted) {
-      AppInit.initAppData(context, ref);
-    }
-
     //!objectbox
     nivObjectBox = await NivObjectBox.create();
     amvObjectBox = await AmvObjectBox.create();
 
     bool isDataLoaded = await BoxLoader.loadData(ref);
     debugPrint('isDataLoaded: ${isDataLoaded}');
+
+    //
+    ref.read(appearanceProvider.notifier).loadAppearance();
+    await AppInit.initLocalNotif();
+    if (mounted) {
+      AppInit.initAppData(context, ref);
+    }
   }
 
   @override

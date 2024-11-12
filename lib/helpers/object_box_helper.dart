@@ -11,19 +11,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-Future<List<Map<String, dynamic>>> parseJsonFromAssets(String assetsPath) async {
+Future<List<dynamic>> parseJsonFromAssets(String assetsPath) async {
   debugPrint('--- Parse json from: $assetsPath');
   return rootBundle.loadString(assetsPath).then((jsonStr) => jsonDecode(jsonStr));
 }
 
 List<Verse> getVersesFromListMap(List<dynamic> versesMapList) {
-  return versesMapList.map((verseMap) => Verse.fromJson(verseMap)).toList();
+  return versesMapList.map((verseMap) => Verse.fromMap(verseMap)).toList();
 }
 
 //*--------------------------------------NIV-----------------------------------
 Future<bool> loadNivVersesDataFromAssetJson(dynamic dataMap) async {
   final token = dataMap['token'];
-  final tNiv = dataMap['tNiv'];
+  List<dynamic> tNiv = dataMap['tNiv'];
   BackgroundIsolateBinaryMessenger.ensureInitialized(token);
   final nivObjectbox = await NivObjectBox.create();
   final nivVBox = nivObjectbox.store.box<Verse>();
@@ -100,8 +100,8 @@ class BoxLoader {
   static Future<bool> _loadNivVersesFromAssetJson() async {
     if (!nivVerseBox.isEmpty()) return true;
     nivVerseBox.removeAll();
-    List<Map<String, dynamic>> tNiv = await parseJsonFromAssets(kTNivAssetPath);
-    List<dynamic> versesMapList = tNiv;
+    List<dynamic> tNiv = await parseJsonFromAssets(kTNivAssetPath);
+    List<Map<String, dynamic>> versesMapList = tNiv as List<Map<String, dynamic>>;
     List<Verse> versesList = getVersesFromListMap(versesMapList);
     List<int> bookVerseIds = nivVerseBox.putMany(versesList);
     debugPrint('bookVerseIds: ${bookVerseIds}');
@@ -112,8 +112,8 @@ class BoxLoader {
   static Future<bool> _loadAmVVersesFromAssetJson() async {
     if (!amvVerseBox.isEmpty()) return true;
     amvVerseBox.removeAll();
-    List<Map<String, dynamic>> tAmv = await parseJsonFromAssets(kTAmvAssetPath);
-    List<dynamic> versesMapList = tAmv;
+    List<dynamic> tAmv = await parseJsonFromAssets(kTAmvAssetPath);
+    List<Map<String, dynamic>> versesMapList = tAmv as List<Map<String, dynamic>>;
     List<Verse> versesList = getVersesFromListMap(versesMapList);
     List<int> bookVerseIds = amvVerseBox.putMany(versesList);
     debugPrint('bookVerseIds: ${bookVerseIds}');
@@ -124,7 +124,7 @@ class BoxLoader {
   static Future<bool> loadData(WidgetRef ref) async {
     //*---------------------------------------------Niv verses loading start
     bool isNivVersesLoaded;
-    List<Map<String, dynamic>> tNiv;
+    List<dynamic> tNiv;
     final loadNivVersesToken = RootIsolateToken.instance;
     if (BoxLoader.nivVerseBox.isEmpty()) {
       tNiv = await parseJsonFromAssets(kTNivAssetPath);
@@ -135,7 +135,7 @@ class BoxLoader {
 
     //*---------------------------------------------Amv verses loading start
     bool isAmvVersesLoaded;
-    List<Map<String, dynamic>> tAmv;
+    List<dynamic> tAmv;
     final loadAmvVersesToken = RootIsolateToken.instance;
     if (BoxLoader.amvVerseBox.isEmpty()) {
       tAmv = await parseJsonFromAssets(kTAmvAssetPath);

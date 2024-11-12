@@ -73,7 +73,7 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(10, 6824343489934541948),
             name: 'hnu',
-            type: 6,
+            type: 8,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -152,7 +152,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addOffset(6, vOffset);
           fbb.addOffset(7, tOffset);
           fbb.addOffset(8, hOffset);
-          fbb.addInt64(9, object.hnu);
+          fbb.addFloat64(9, object.hnu);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -177,8 +177,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGet(buffer, rootOffset, 18, '');
           final hParam = const fb.StringReader(asciiOptimization: true)
               .vTableGetNullable(buffer, rootOffset, 20);
-          final hnuParam =
-              const fb.Int64Reader().vTableGetNullable(buffer, rootOffset, 22);
+          final hnuParam = const fb.Float64Reader()
+              .vTableGetNullable(buffer, rootOffset, 22);
           final object = Verse(
               id: idParam,
               o: oParam,
@@ -230,6 +230,5 @@ class Verse_ {
   static final h = obx.QueryStringProperty<Verse>(_entities[0].properties[8]);
 
   /// See [Verse.hnu].
-  static final hnu =
-      obx.QueryIntegerProperty<Verse>(_entities[0].properties[9]);
+  static final hnu = obx.QueryDoubleProperty<Verse>(_entities[0].properties[9]);
 }

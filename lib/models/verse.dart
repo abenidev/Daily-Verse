@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:objectbox/objectbox.dart';
 
@@ -15,7 +16,7 @@ class Verse {
   final List<int> v;
   final String t;
   final String? h;
-  final int? hnu;
+  final double? hnu;
 
   Verse({
     this.id = 0,
@@ -31,6 +32,7 @@ class Verse {
   });
 
   Verse copyWith({
+    int? id,
     int? o,
     String? biv,
     String? bna,
@@ -39,9 +41,10 @@ class Verse {
     List<int>? v,
     String? t,
     String? h,
-    int? hnu,
+    double? hnu,
   }) {
     return Verse(
+      id: id ?? this.id,
       o: o ?? this.o,
       biv: biv ?? this.biv,
       bna: bna ?? this.bna,
@@ -56,6 +59,7 @@ class Verse {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'o': o,
       'biv': biv,
       'bna': bna,
@@ -75,10 +79,10 @@ class Verse {
       bna: map['bna'] as String,
       bnu: map['bnu'] as int,
       ch: map['ch'] as int,
-      v: List<int>.from((map['v'] as List<int>)),
+      v: List<int>.from((map['v'] as List<dynamic>)),
       t: map['t'] as String,
       h: map['h'] != null ? map['h'] as String : null,
-      hnu: map['hnu'] != null ? map['hnu'] as int : null,
+      hnu: map['hnu'] != null ? double.parse(map['hnu'].toString()) : null,
     );
   }
 
@@ -88,18 +92,27 @@ class Verse {
 
   @override
   String toString() {
-    return 'Verse(o: $o, biv: $biv, bna: $bna, bnu: $bnu, ch: $ch, v: $v, t: $t, h: $h, hnu: $hnu)';
+    return 'Verse(id: $id, o: $o, biv: $biv, bna: $bna, bnu: $bnu, ch: $ch, v: $v, t: $t, h: $h, hnu: $hnu)';
   }
 
   @override
   bool operator ==(covariant Verse other) {
     if (identical(this, other)) return true;
 
-    return other.o == o && other.biv == biv && other.bna == bna && other.bnu == bnu && other.ch == ch && listEquals(other.v, v) && other.t == t && other.h == h && other.hnu == hnu;
+    return other.id == id &&
+        other.o == o &&
+        other.biv == biv &&
+        other.bna == bna &&
+        other.bnu == bnu &&
+        other.ch == ch &&
+        listEquals(other.v, v) &&
+        other.t == t &&
+        other.h == h &&
+        other.hnu == hnu;
   }
 
   @override
   int get hashCode {
-    return o.hashCode ^ biv.hashCode ^ bna.hashCode ^ bnu.hashCode ^ ch.hashCode ^ v.hashCode ^ t.hashCode ^ h.hashCode ^ hnu.hashCode;
+    return id.hashCode ^ o.hashCode ^ biv.hashCode ^ bna.hashCode ^ bnu.hashCode ^ ch.hashCode ^ v.hashCode ^ t.hashCode ^ h.hashCode ^ hnu.hashCode;
   }
 }
