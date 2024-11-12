@@ -38,6 +38,8 @@ dependencies:
   timezone: ^0.10.0
   flutter_timezone: ^3.0.1
   internet_connection_checker_plus: ^2.5.2
+  objectbox: ^4.0.3
+  objectbox_flutter_libs: any
 
 
 
@@ -49,6 +51,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   build_runner: ^2.4.13
   flutter_native_splash: ^2.4.2
+  objectbox_generator: any
 
 flutter:
   uses-material-design: true
@@ -58,6 +61,7 @@ flutter:
     - assets/
     - assets/anims/
     - assets/icon/
+    - assets/json/
 
   fonts:
     - family: Poppins
