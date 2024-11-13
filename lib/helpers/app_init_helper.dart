@@ -3,7 +3,6 @@ import 'package:daily_verse/helpers/firebase_helper.dart';
 import 'package:daily_verse/helpers/local_notifications.dart';
 import 'package:daily_verse/helpers/shared_prefs_helper.dart';
 import 'package:daily_verse/screens/home_screen.dart';
-import 'package:daily_verse/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,7 +62,8 @@ class AppInit {
 
     if (context.mounted) {
       if (!isIntroShown) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen()));
+        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen()));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
       } else {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
       }

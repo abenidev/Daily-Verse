@@ -9,3 +9,7 @@ const String klightTheme = 'light';
 const String _base = 'assets';
 const String kTNivAssetPath = '${_base}/json/niv.json';
 const String kTAmvAssetPath = '${_base}/json/amv.json';
+
+//booktranslation types
+const String kNivBookTranslation = 'niv';
+const String kAmvBookTranslation = 'amv';
