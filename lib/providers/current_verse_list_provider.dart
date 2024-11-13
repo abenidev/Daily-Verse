@@ -9,8 +9,8 @@ final currentVerseListStateNotifierProvider = StateNotifierProvider<CurrentVerse
 class CurrentVerseListStateNotifier extends StateNotifier<List<Verse>> {
   CurrentVerseListStateNotifier() : super([]);
 
-  void setVerseList(WidgetRef ref, int book, int chapter) {
-    List<Verse> verseList = BoxQueryHelper.getVerseFromBookAndChapterNumber(book, chapter, BookTranslationType.niv);
+  void setVerseList(WidgetRef ref, int book, int chapter, BookTranslationType bookTranslationType) {
+    List<Verse> verseList = BoxQueryHelper.getVerseFromBookAndChapterNumber(book, chapter, bookTranslationType);
     state = [...verseList];
   }
 }

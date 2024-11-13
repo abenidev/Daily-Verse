@@ -56,15 +56,4 @@ class BoxQueryHelper {
     query.close();
     return results;
   }
-
-  // static Book? getBookByName(String bookName) {
-  //   final booksBox = BoxLoader.webBooksBox;
-  //   Query<Book> query = booksBox.query(Book_.name.equals(bookName)).build();
-  //   final results = query.find();
-  //   query.close();
-  //   if (results.isEmpty) return null;
-  //   return results[0];
-  // }
-
-  //
 }

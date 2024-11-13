@@ -1,3 +1,4 @@
+import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   _init() {
-    ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(ref, 1, 1);
+    ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+          ref,
+          1,
+          1,
+          BookTranslationType.amv,
+        );
   }
 
   @override
@@ -34,29 +40,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 28.w),
           decoration: const BoxDecoration(),
-          // height: 0.7.sh,
           child: NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (overscroll) {
               overscroll.disallowIndicator();
               return true;
             },
             child: ListView.builder(
-              // controller: widget.scrollController,
               itemCount: verseList.length,
               itemBuilder: (context, index) {
-                // if (index == 0) {
-                //   return Column(
-                //     children: [
-                //       SizedBox(height: 5.h),
-                //       Text(
-                //         '${currentBook!.name} ${currentChapter}',
-                //         style: TextStyle(fontSize: 26.sp),
-                //       ),
-                //       SizedBox(height: 15.h),
-                //     ],
-                //   );
-                // }
-
                 final verse = verseList[index];
                 String cleanedVerseText = verse.t;
 
@@ -64,7 +55,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   padding: const EdgeInsets.only(bottom: 0),
                   child: GestureDetector(
                     onTap: () {
-                      // widget.onVerseTap(verse);
+                      //
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
