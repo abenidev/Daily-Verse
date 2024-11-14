@@ -238,6 +238,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.7"
+  davinci:
+    dependency: "direct main"
+    description:
+      name: davinci
+      sha256: "3fe979f1d7adb08417426060341ac9acc6e4a5bb238789d19d76e00b9d47e751"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.1"
   dbus:
     dependency: transitive
     description:
@@ -554,6 +562,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  gal:
+    dependency: transitive
+    description:
+      name: gal
+      sha256: "54c9b72528efce7c66234f3b6dd01cb0304fd8af8196de15571d7bdddb940977"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   glob:
     dependency: transitive
     description:
@@ -810,6 +826,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.3"
+  open_filex:
+    dependency: transitive
+    description:
+      name: open_filex
+      sha256: ba425ea49affd0a98a234aa9344b9ea5d4c4f7625a1377961eae9fe194c3d523
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.0"
   package_config:
     dependency: transitive
     description:

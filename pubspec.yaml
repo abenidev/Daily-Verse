@@ -41,7 +41,7 @@ dependencies:
   objectbox: ^4.0.3
   objectbox_flutter_libs: any
   home_widget: ^0.7.0
-
+  davinci: ^2.5.1
 
 
 
