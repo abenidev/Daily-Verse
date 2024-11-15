@@ -1,11 +1,11 @@
 import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nb_utils/nb_utils.dart';
+import 'package:styled_text_advance/styled_text_advance.dart';
 
 final bookNumProvider = StateProvider<int>((ref) {
   return 1;
@@ -46,8 +46,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
           ref,
-          // 19, 119,
-          initBookNum, initChapterNum,
+          19, 119,
+          // initBookNum, initChapterNum,
           currentBookTransType,
         );
   }
@@ -76,15 +76,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   String renderVerseNum(Verse verse) {
     if (verse.v.length == 1) {
-      return '  ${verse.v[0]}';
+      return '${verse.v[0]}';
     } else {
-      return '  ${verse.v[0]} - ${verse.v[verse.v.length - 1]}';
+      return '${verse.v[0]} - ${verse.v[verse.v.length - 1]}';
     }
   }
 
   String renderVerseText(Verse verse) {
     return verse.t.replaceAll(RegExp(r'\*\w+'), '');
-    // return verse.t;
   }
 
   @override
@@ -95,119 +94,171 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     BookTranslationType currentBookTransType = ref.watch(currentBookTransProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(verseList.isNotEmpty ? '${verseList[0].bna} ${verseList[0].ch}' : ''),
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (currentBookTransType == BookTranslationType.niv) {
-                ref.read(currentBookTransProvider.notifier).state = BookTranslationType.amv;
-              } else if (currentBookTransType == BookTranslationType.amv) {
-                ref.read(currentBookTransProvider.notifier).state = BookTranslationType.niv;
-              }
-              ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                    ref,
-                    currentBookNum,
-                    currentChapterNum,
-                    currentBookTransType,
-                  );
-            },
-            icon: const Icon(Icons.change_circle),
-          ),
-          IconButton(
-            onPressed: () {
-              if (currentChapterNum > 1) {
-                ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
+      // appBar: AppBar(
+      //   title: Text(verseList.isNotEmpty ? verseList[0].bna : ''),
+      //   actions: [
+      //     //!home_widget----------------------
+      //     IconButton(
+      //       onPressed: () async {
+      //         // await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
+      //         // await HomeWidget.updateWidget(
+      //         //   qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
+      //         //   androidName: "HomeScreenWidget",
+      //         // );
+      //       },
+      //       icon: const Icon(Icons.restart_alt),
+      //     ),
+      //     //!home_widget----------------------
+      //   ],
+      // ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(color: Theme.of(context).canvasColor),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () {
+                if (currentChapterNum > 1) {
+                  ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
+                  ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                        ref,
+                        currentBookNum,
+                        currentChapterNum,
+                        currentBookTransType,
+                      );
+                }
+              },
+              icon: const Icon(Icons.arrow_back_ios),
+            ),
+            IconButton(
+              onPressed: () {
+                ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
                 ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
                       ref,
                       currentBookNum,
                       currentChapterNum,
                       currentBookTransType,
                     );
-              }
-            },
-            icon: const Icon(Icons.arrow_back_ios),
-          ),
-          IconButton(
-            onPressed: () {
-              ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
-              ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                    ref,
-                    currentBookNum,
-                    currentChapterNum,
-                    currentBookTransType,
-                  );
-            },
-            icon: const Icon(Icons.arrow_forward_ios),
-          ),
-          //!home_widget----------------------
-          IconButton(
-            onPressed: () async {
-              // await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
-              // await HomeWidget.updateWidget(
-              //   qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
-              //   androidName: "HomeScreenWidget",
-              // );
-            },
-            icon: const Icon(Icons.restart_alt),
-          ),
-          //!home_widget----------------------
-        ],
+              },
+              icon: const Icon(Icons.arrow_forward_ios),
+            ),
+          ],
+        ),
       ),
-      body: NotificationListener<OverscrollIndicatorNotification>(
-        onNotification: (overscroll) {
-          overscroll.disallowIndicator();
-          return true;
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15.w),
-                decoration: const BoxDecoration(),
-                child: Text.rich(
-                  TextSpan(
-                    children: verseList.map(
-                      (verse) {
-                        return highlightedVerses.contains(verse)
-                            ? TextSpan(
-                                text: ' ${renderVerseNum(verse)}. ${renderVerseText(verse)}',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  background: Paint()..color = Theme.of(context).secondaryHeaderColor,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    setState(() => highlightedVerses.remove(verse));
+      body: SafeArea(
+        child: NotificationListener<OverscrollIndicatorNotification>(
+          onNotification: (overscroll) {
+            overscroll.disallowIndicator();
+            return true;
+          },
+          child: Container(
+            decoration: const BoxDecoration(),
+            padding: EdgeInsets.symmetric(horizontal: 20.w),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: verseList.length,
+                    itemBuilder: (context, index) {
+                      Verse verse = verseList[index];
+
+                      if (verse.hnu != null) {
+                        if (verse.hnu == 1) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
+                            child: Text(
+                              renderVerseText(verse),
+                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
+                            ),
+                          );
+                        } else {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: 10.h),
+                            child: Text(
+                              renderVerseText(verse),
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                            ),
+                          );
+                        }
+                      }
+
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            //!
+                            // Text(
+                            //   '${renderVerseNum(verse)}.',
+                            //   style: TextStyle(
+                            //     fontSize: 16.sp,
+                            //     fontWeight: FontWeight.w600,
+                            //     height: 1.8,
+                            //   ),
+                            // ),
+                            // Expanded(
+                            //   child: Text(
+                            //     renderVerseText(verse),
+                            //     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, height: 1.8),
+                            //   ),
+                            // )
+
+                            //!
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(bottom: 5.h),
+                                child: StyledTextAdvance.selectable(
+                                  text: "   <b>${renderVerseNum(verse)}</b>. ${renderVerseText(verse)}",
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, height: 1.8),
+                                  tags: {
+                                    'b': StyledTextAdvanceTag(
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.8,
+                                      ),
+                                    ),
                                   },
-                              )
-                            : verse.v.contains(0) || verse.hnu != null
-                                ? TextSpan(
-                                    text: renderHeadingText(verse),
-                                    style: TextStyle(
-                                      fontSize: 22.sp,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  )
-                                : TextSpan(
-                                    text: ' ${renderVerseNum(verse)}. ${renderVerseText(verse)}',
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      height: 1.6,
-                                    ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        debugPrint('verse: ${verse}');
-                                        setState(() => highlightedVerses.add(verse));
-                                      },
-                                  );
-                      },
-                    ).toList(),
+                                ),
+                                // child: Text(
+                                //   "   ${renderVerseNum(verse)}. ${renderVerseText(verse)}",
+                                //   style: TextStyle(
+                                //     fontSize: 16.sp,
+                                //     fontWeight: FontWeight.w400,
+                                //     height: 1.8,
+                                //   ),
+                                // ),
+                              ),
+                            ),
+
+                            //!styledText
+                            // StyledTextAdvance.selectable(
+                            //   text: "<s>${renderVerseNum(verse)}</s>",
+                            //   tags: {
+                            //     's': StyledTextAdvanceTag(
+                            //       style: TextStyle(fontSize: 12.sp),
+                            //     ),
+                            //   },
+                            // ),
+                            // Expanded(
+                            //   child: StyledTextAdvance.selectable(
+                            //     text: renderVerseText(verse),
+                            //     style: TextStyle(fontSize: 16.sp),
+                            //     tags: {
+                            //       'b': StyledTextAdvanceTag(
+                            //         style: const TextStyle(fontWeight: FontWeight.bold),
+                            //       ),
+                            //     },
+                            //   ),
+                            // ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ),
-              SizedBox(height: 30.h),
-            ],
+              ],
+            ),
           ),
         ),
       ),

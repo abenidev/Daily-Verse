@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_linux
   nb_utils
   objectbox_flutter_libs
   url_launcher_linux

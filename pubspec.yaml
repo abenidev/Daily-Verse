@@ -41,7 +41,7 @@ dependencies:
   objectbox: ^4.0.3
   objectbox_flutter_libs: any
   home_widget: ^0.7.0
-  # davinci: ^2.5.1
+  styled_text_advance: ^1.0.1+10
 
 
 dev_dependencies:
@@ -69,6 +69,14 @@ flutter:
         - asset: assets/fonts/Poppins-Regular.ttf
         - asset: assets/fonts/Poppins-Italic.ttf
           style: italic
+        - asset: assets/fonts/Poppins-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
+          weight: 900
     - family: Madimi
       fonts:
         - asset: assets/fonts/MadimiOne-Regular.ttf
