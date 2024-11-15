@@ -48,8 +48,8 @@ class MainApp extends ConsumerWidget {
           useInheritedMediaQuery: true,
           locale: DevicePreview.locale(context),
           builder: DevicePreview.appBuilder,
-          theme: FlexColorScheme.light(scheme: FlexScheme.redM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
-          darkTheme: FlexColorScheme.dark(scheme: FlexScheme.redM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          theme: FlexColorScheme.light(scheme: FlexScheme.aquaBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          darkTheme: FlexColorScheme.dark(scheme: FlexScheme.aquaBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
           themeMode: getThemeMode(ref),
           home: const Root(),
         );
@@ -106,10 +106,10 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    // bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xff740938) : const Color(0xffAF1740),
+      // backgroundColor: isDarkMode ? const Color(0xff740938) : const Color(0xffAF1740),
       body: Container(
         decoration: const BoxDecoration(),
         child: Center(

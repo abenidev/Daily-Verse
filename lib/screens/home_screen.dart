@@ -4,7 +4,6 @@ import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:home_widget/home_widget.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -38,19 +37,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              //
-              await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
-              await HomeWidget.updateWidget(
-                qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
-                androidName: "HomeScreenWidget",
-              );
-            },
-            icon: const Icon(Icons.restart_alt),
-          ),
-        ],
+        title: Text(verseList[0].bna),
+        //!home_widget----------------------
+        // actions: [
+        // IconButton(
+        //   onPressed: () async {
+        //     //
+        //     await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
+        //     await HomeWidget.updateWidget(
+        //       qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
+        //       androidName: "HomeScreenWidget",
+        //     );
+        //   },
+        //   icon: const Icon(Icons.restart_alt),
+        // ),
+        // ],
+        //!home_widget----------------------
       ),
       body: SafeArea(
         child: Container(

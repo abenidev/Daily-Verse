@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   firebase_core
   flutter_timezone
-  gal
   nb_utils
   objectbox_flutter_libs
   share_plus
