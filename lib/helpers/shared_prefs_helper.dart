@@ -1,5 +1,7 @@
+import 'package:daily_verse/constants/app_nums.dart';
 import 'package:daily_verse/constants/app_strings.dart';
 import 'package:daily_verse/constants/shared_pref_consts.dart';
+import 'package:daily_verse/models/app_data.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class SharedPrefsHelper {
@@ -39,5 +41,23 @@ class SharedPrefsHelper {
 
   static bool isTranslationsLoaded() {
     return getBoolAsync(kIsTranslationsLoadedSharedPrefKey, defaultValue: false);
+  }
+
+  //-------------------- appData------------------------------
+  static Future<bool> setAppData(AppData newAppData) async {
+    return await setValue(kAppDataKey, newAppData.toMap());
+  }
+
+  static AppData getAppData() {
+    return AppData.fromMap(
+      getJSONAsync(
+        kAppDataKey,
+        defaultValue: AppData(
+          currentBookNum: defaultCurrentBookNum,
+          currentChapterNum: defaultCurrentChapterNum,
+          currentVerseNum: defaultCurrentVerseNum,
+        ).toMap(),
+      ),
+    );
   }
 }

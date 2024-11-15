@@ -1,5 +1,7 @@
 import 'package:daily_verse/data/books_data.dart';
 import 'package:daily_verse/helpers/query_helper.dart';
+import 'package:daily_verse/helpers/shared_prefs_helper.dart';
+import 'package:daily_verse/models/app_data.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:daily_verse/utils/render_util.dart';
@@ -36,15 +38,29 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
     afterBuildCreated(() {
       _init();
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   _init() {
+    AppData appData = SharedPrefsHelper.getAppData();
+    ref.read(bookNumProvider.notifier).state = appData.currentBookNum;
+    ref.read(chapterNumProvider.notifier).state = appData.currentChapterNum;
+    ref.read(verseNumProvider.notifier).state = appData.currentVerseNum;
+
     int initBookNum = ref.read(bookNumProvider);
     int initChapterNum = ref.read(chapterNumProvider);
     BookTranslationType currentBookTransType = ref.read(currentBookTransProvider);
@@ -72,6 +88,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           currentChapterNum,
           currentBookTransType,
         );
+    AppData appData = SharedPrefsHelper.getAppData();
+    SharedPrefsHelper.setAppData(appData.copyWith(currentBookNum: currentBookNum, currentChapterNum: currentChapterNum));
   }
 
   _handlePrevBtn() {
@@ -96,6 +114,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('First Chapter of the Bible Reached!')));
       }
     }
+    _scrollToTop();
   }
 
   _handleNextBtn() {
@@ -120,6 +139,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Last Chapter of the Bible Reached!')));
       }
     }
+    _scrollToTop();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0, // scroll position to scroll to (top of the list)
+      duration: const Duration(milliseconds: 200), // Duration of the animation
+      curve: Curves.easeInOut, // Animation curve
+    );
   }
 
   @override
@@ -144,6 +172,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       Expanded(
                         child: ListView.builder(
+                          controller: _scrollController,
                           itemCount: verseList.length,
                           itemBuilder: (context, index) {
                             Verse verse = verseList[index];
@@ -185,7 +214,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   padding: selectedVerses.contains(verse) ? EdgeInsets.symmetric(horizontal: 2.h) : null,
                                   decoration: selectedVerses.contains(verse)
                                       ? BoxDecoration(
-                                          color: Colors.orange[50],
+                                          color: Theme.of(context).secondaryHeaderColor,
                                           border: Border(
                                             left: BorderSide(width: 2, color: Theme.of(context).primaryColor),
                                             right: BorderSide(width: 2, color: Theme.of(context).primaryColor),
