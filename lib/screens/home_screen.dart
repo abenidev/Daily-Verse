@@ -1,11 +1,11 @@
 import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
+import 'package:daily_verse/utils/render_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nb_utils/nb_utils.dart';
-import 'package:styled_text_advance/styled_text_advance.dart';
 
 final bookNumProvider = StateProvider<int>((ref) {
   return 1;
@@ -17,6 +17,10 @@ final chapterNumProvider = StateProvider<int>((ref) {
 
 final verseNumProvider = StateProvider<int>((ref) {
   return 1;
+});
+
+final selectedVerseProvider = StateProvider<List<Verse>>((ref) {
+  return [];
 });
 
 final currentBookTransProvider = StateProvider<BookTranslationType>((ref) {
@@ -46,44 +50,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
           ref,
-          19, 119,
-          // initBookNum, initChapterNum,
+          initBookNum,
+          initChapterNum,
           currentBookTransType,
         );
-  }
-
-  List<Verse> highlightedVerses = [];
-
-  String renderHeadingText(Verse verse) {
-    if (verse.hnu == null) {
-      return verse.t;
-    }
-
-    String finalText = '';
-    if (verse.v.contains(0) && verse.v.length > 1) {
-      finalText = '\n${verse.t}';
-    } else if (!verse.v.contains(0) && verse.v.isNotEmpty) {
-      finalText = '\n${verse.t}';
-    } else {
-      finalText = verse.t;
-    }
-
-    for (int i = 0; (i < verse.hnu!.floor() && i < 2); i++) {
-      finalText = '${finalText}\n';
-    }
-    return finalText;
-  }
-
-  String renderVerseNum(Verse verse) {
-    if (verse.v.length == 1) {
-      return '${verse.v[0]}';
-    } else {
-      return '${verse.v[0]} - ${verse.v[verse.v.length - 1]}';
-    }
-  }
-
-  String renderVerseText(Verse verse) {
-    return verse.t.replaceAll(RegExp(r'\*\w+'), '');
   }
 
   @override
@@ -92,174 +62,170 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     int currentBookNum = ref.watch(bookNumProvider);
     int currentChapterNum = ref.watch(chapterNumProvider);
     BookTranslationType currentBookTransType = ref.watch(currentBookTransProvider);
+    List<Verse> selectedVerses = ref.watch(selectedVerseProvider);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(verseList.isNotEmpty ? verseList[0].bna : ''),
-      //   actions: [
-      //     //!home_widget----------------------
-      //     IconButton(
-      //       onPressed: () async {
-      //         // await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
-      //         // await HomeWidget.updateWidget(
-      //         //   qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
-      //         //   androidName: "HomeScreenWidget",
-      //         // );
-      //       },
-      //       icon: const Icon(Icons.restart_alt),
-      //     ),
-      //     //!home_widget----------------------
-      //   ],
-      // ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(color: Theme.of(context).canvasColor),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              onPressed: () {
-                if (currentChapterNum > 1) {
-                  ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
-                  ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                        ref,
-                        currentBookNum,
-                        currentChapterNum,
-                        currentBookTransType,
-                      );
-                }
-              },
-              icon: const Icon(Icons.arrow_back_ios),
-            ),
-            IconButton(
-              onPressed: () {
-                ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
-                ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                      ref,
-                      currentBookNum,
-                      currentChapterNum,
-                      currentBookTransType,
-                    );
-              },
-              icon: const Icon(Icons.arrow_forward_ios),
-            ),
-          ],
-        ),
-      ),
       body: SafeArea(
-        child: NotificationListener<OverscrollIndicatorNotification>(
-          onNotification: (overscroll) {
-            overscroll.disallowIndicator();
-            return true;
-          },
-          child: Container(
-            decoration: const BoxDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: verseList.length,
-                    itemBuilder: (context, index) {
-                      Verse verse = verseList[index];
+        child: Column(
+          children: [
+            Expanded(
+              child: NotificationListener<OverscrollIndicatorNotification>(
+                onNotification: (overscroll) {
+                  overscroll.disallowIndicator();
+                  return true;
+                },
+                child: Container(
+                  decoration: const BoxDecoration(),
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: verseList.length,
+                          itemBuilder: (context, index) {
+                            Verse verse = verseList[index];
 
-                      if (verse.hnu != null) {
-                        if (verse.hnu == 1) {
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
-                            child: Text(
-                              renderVerseText(verse),
-                              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: EdgeInsets.only(bottom: 10.h),
-                            child: Text(
-                              renderVerseText(verse),
-                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
-                            ),
-                          );
-                        }
-                      }
+                            if (verse.hnu != null) {
+                              if (verse.hnu == 1) {
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
+                                  child: Text(
+                                    renderVerseText(verse),
+                                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
+                                  ),
+                                );
+                              } else {
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 10.h),
+                                  child: Text(
+                                    renderVerseText(verse),
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                                  ),
+                                );
+                              }
+                            }
 
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            //!
-                            // Text(
-                            //   '${renderVerseNum(verse)}.',
-                            //   style: TextStyle(
-                            //     fontSize: 16.sp,
-                            //     fontWeight: FontWeight.w600,
-                            //     height: 1.8,
-                            //   ),
-                            // ),
-                            // Expanded(
-                            //   child: Text(
-                            //     renderVerseText(verse),
-                            //     style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, height: 1.8),
-                            //   ),
-                            // )
-
-                            //!
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(bottom: 5.h),
-                                child: StyledTextAdvance.selectable(
-                                  text: "   <b>${renderVerseNum(verse)}</b>. ${renderVerseText(verse)}",
-                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w400, height: 1.8),
-                                  tags: {
-                                    'b': StyledTextAdvanceTag(
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.8,
-                                      ),
-                                    ),
-                                  },
+                            return Padding(
+                              padding: EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 5.h),
+                              child: GestureDetector(
+                                onTap: () {
+                                  List<Verse> updatedSelectedVerses = [...selectedVerses];
+                                  if (updatedSelectedVerses.contains(verse)) {
+                                    updatedSelectedVerses.remove(verse);
+                                  } else {
+                                    updatedSelectedVerses.add(verse);
+                                  }
+                                  ref.read(selectedVerseProvider.notifier).state = [...updatedSelectedVerses];
+                                },
+                                child: Container(
+                                  //!-----------for when verse is selected
+                                  padding: selectedVerses.contains(verse) ? EdgeInsets.symmetric(horizontal: 2.h) : null,
+                                  decoration: selectedVerses.contains(verse)
+                                      ? BoxDecoration(
+                                          color: Colors.orange[50],
+                                          border: Border(
+                                            left: BorderSide(width: 2, color: Theme.of(context).primaryColor),
+                                            right: BorderSide(width: 2, color: Theme.of(context).primaryColor),
+                                          ),
+                                        )
+                                      : null,
+                                  //!-----------
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: '   ${renderVerseNum(verse)}. ',
+                                                style: TextStyle(
+                                                  fontSize: 14.sp,
+                                                  fontWeight: FontWeight.w600,
+                                                  height: 1.6,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: renderVerseText(verse),
+                                                style: TextStyle(
+                                                  fontSize: 16.sp,
+                                                  fontWeight: FontWeight.w400,
+                                                  height: 1.6,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                // child: Text(
-                                //   "   ${renderVerseNum(verse)}. ${renderVerseText(verse)}",
-                                //   style: TextStyle(
-                                //     fontSize: 16.sp,
-                                //     fontWeight: FontWeight.w400,
-                                //     height: 1.8,
-                                //   ),
-                                // ),
                               ),
-                            ),
-
-                            //!styledText
-                            // StyledTextAdvance.selectable(
-                            //   text: "<s>${renderVerseNum(verse)}</s>",
-                            //   tags: {
-                            //     's': StyledTextAdvanceTag(
-                            //       style: TextStyle(fontSize: 12.sp),
-                            //     ),
-                            //   },
-                            // ),
-                            // Expanded(
-                            //   child: StyledTextAdvance.selectable(
-                            //     text: renderVerseText(verse),
-                            //     style: TextStyle(fontSize: 16.sp),
-                            //     tags: {
-                            //       'b': StyledTextAdvanceTag(
-                            //         style: const TextStyle(fontWeight: FontWeight.bold),
-                            //       ),
-                            //     },
-                            //   ),
-                            // ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+
+            //footer
+            Container(
+              height: 50.h,
+              width: double.infinity,
+              decoration: const BoxDecoration(),
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    child: IconButton(
+                      onPressed: () {
+                        if (currentChapterNum > 1) {
+                          ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
+                          ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                                ref,
+                                currentBookNum,
+                                currentChapterNum,
+                                currentBookTransType,
+                              );
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back_ios),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      //
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(),
+                      child: Text(
+                        verseList.isNotEmpty ? verseList[0].bna : '',
+                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    child: IconButton(
+                      onPressed: () {
+                        ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
+                        ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                              ref,
+                              currentBookNum,
+                              currentChapterNum,
+                              currentBookTransType,
+                            );
+                      },
+                      icon: const Icon(Icons.arrow_forward_ios),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );

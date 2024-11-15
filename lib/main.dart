@@ -48,8 +48,8 @@ class MainApp extends ConsumerWidget {
           useInheritedMediaQuery: true,
           locale: DevicePreview.locale(context),
           builder: DevicePreview.appBuilder,
-          theme: FlexColorScheme.light(scheme: FlexScheme.aquaBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
-          darkTheme: FlexColorScheme.dark(scheme: FlexScheme.aquaBlue, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          theme: FlexColorScheme.light(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
+          darkTheme: FlexColorScheme.dark(scheme: FlexScheme.orangeM3, useMaterial3: true, fontFamily: 'Poppins').toTheme,
           themeMode: getThemeMode(ref),
           home: const Root(),
         );
