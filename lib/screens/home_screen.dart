@@ -26,23 +26,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   _init() {
     ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
           ref,
-          19, 119,
-          // 1, 1,
+          // 19, 119,
+          1, 1,
           BookTranslationType.niv,
         );
   }
 
   List<Verse> highlightedVerses = [];
 
-  String renderVerseText(Verse verse) {
+  String renderHeadingText(Verse verse) {
     if (verse.hnu == null) {
       return verse.t;
     }
-    String finalText = verse.t;
-    for (int i = 0; i < verse.hnu!.floor(); i++) {
+
+    String finalText = '';
+    if (verse.v.contains(0) && verse.v.length > 1) {
+      finalText = '\n${verse.t}';
+    } else if (!verse.v.contains(0) && verse.v.isNotEmpty) {
+      finalText = '\n${verse.t}';
+    } else {
+      finalText = verse.t;
+    }
+
+    for (int i = 0; (i < verse.hnu!.floor() && i < 2); i++) {
       finalText = '${finalText}\n';
     }
     return finalText;
+  }
+
+  String renderVerseNum(Verse verse) {
+    if (verse.v.length == 1) {
+      return '  ${verse.v[0]}';
+    } else {
+      return '  ${verse.v[0]} - ${verse.v[verse.v.length - 1]}';
+    }
+  }
+
+  String renderVerseText(Verse verse) {
+    return verse.t.replaceAll(RegExp(r'\*\w+'), '');
+    // return verse.t;
   }
 
   @override
@@ -85,31 +107,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       (verse) {
                         return highlightedVerses.contains(verse)
                             ? TextSpan(
-                                text: '${verse.v}. ${verse.t}',
+                                text: ' ${renderVerseNum(verse)}. ${renderVerseText(verse)}',
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   background: Paint()..color = Theme.of(context).secondaryHeaderColor,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
-                                    setState(() => highlightedVerses.add(verse));
+                                    setState(() => highlightedVerses.remove(verse));
                                   },
                               )
-                            : verse.v.contains(0)
+                            : verse.v.contains(0) || verse.hnu != null
                                 ? TextSpan(
-                                    text: renderVerseText(verse),
+                                    text: renderHeadingText(verse),
                                     style: TextStyle(
                                       fontSize: 22.sp,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   )
                                 : TextSpan(
-                                    text: '${verse.v}. ${verse.t}',
+                                    text: ' ${renderVerseNum(verse)}. ${renderVerseText(verse)}',
                                     style: TextStyle(
                                       fontSize: 16.sp,
+                                      height: 1.6,
                                     ),
                                     recognizer: TapGestureRecognizer()
                                       ..onTap = () {
+                                        debugPrint('verse: ${verse}');
                                         setState(() => highlightedVerses.add(verse));
                                       },
                                   );
@@ -123,68 +147,5 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
-
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     title: Text(verseList.isNotEmpty ? verseList[0].bna : ''),
-    //     //!home_widget----------------------
-    //     // actions: [
-    //     // IconButton(
-    //     //   onPressed: () async {
-    //     //     //
-    //     //     await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
-    //     //     await HomeWidget.updateWidget(
-    //     //       qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
-    //     //       androidName: "HomeScreenWidget",
-    //     //     );
-    //     //   },
-    //     //   icon: const Icon(Icons.restart_alt),
-    //     // ),
-    //     // ],
-    //     //!home_widget----------------------
-    //   ),
-    //   body: SafeArea(
-    //     child: Container(
-    //       padding: EdgeInsets.only(left: 20.w, right: 20.w),
-    //       decoration: const BoxDecoration(),
-    //       child: NotificationListener<OverscrollIndicatorNotification>(
-    //         onNotification: (overscroll) {
-    //           overscroll.disallowIndicator();
-    //           return true;
-    //         },
-    //         child: ListView.builder(
-    //           itemCount: verseList.length,
-    //           itemBuilder: (context, index) {
-    //             final verse = verseList[index];
-    //             String cleanedVerseText = verse.t;
-
-    //             return GestureDetector(
-    //               onTap: () {},
-    //               child: Row(
-    //                 crossAxisAlignment: CrossAxisAlignment.start,
-    //                 children: [
-    //                   Text(
-    //                     '${verse.v}.',
-    //                     style: TextStyle(fontSize: 12.sp),
-    //                   ),
-    //                   Expanded(
-    //                     child: Text(
-    //                       cleanedVerseText,
-    //                       style: TextStyle(fontSize: 17.sp, height: 1.8),
-    //                     ),
-    //                   ),
-    //                 ],
-    //               ),
-    //             );
-
-    //             //
-    //           },
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
-
-    //
   }
 }
