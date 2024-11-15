@@ -1,3 +1,4 @@
+import 'package:daily_verse/data/books_data.dart';
 import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
@@ -56,12 +57,74 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
   }
 
+  int getChaptersCountFromBook(int bookNum) {
+    return booksData[bookNum - 1]["c"];
+  }
+
+  int getVerseCountFromBookNumAndChapNum(int bookNum, int chapterNum) {
+    return booksData[bookNum - 1]["chs"][chapterNum];
+  }
+
+  _updateVerseList(int currentBookNum, int currentChapterNum, BookTranslationType currentBookTransType) {
+    ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+          ref,
+          currentBookNum,
+          currentChapterNum,
+          currentBookTransType,
+        );
+  }
+
+  _handlePrevBtn() {
+    int currentChapterNum = ref.read(chapterNumProvider);
+    int currentBookNum = ref.read(bookNumProvider);
+    BookTranslationType currentBookTransType = ref.read(currentBookTransProvider);
+
+    if (currentChapterNum > 1) {
+      int newChapterNum = currentChapterNum - 1;
+      ref.read(chapterNumProvider.notifier).state = newChapterNum;
+      _updateVerseList(currentBookNum, newChapterNum, currentBookTransType);
+    } else {
+      //move to the prev book starting from chapter 1
+      if (currentBookNum > 1) {
+        int newBookNum = currentBookNum - 1;
+        int bookChapterTotalCount = getChaptersCountFromBook(newBookNum);
+        int newChapterNum = bookChapterTotalCount;
+        ref.read(chapterNumProvider.notifier).state = newChapterNum;
+        ref.read(bookNumProvider.notifier).state = newBookNum;
+        _updateVerseList(newBookNum, newChapterNum, currentBookTransType);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('First Chapter of the Bible Reached!')));
+      }
+    }
+  }
+
+  _handleNextBtn() {
+    int currentChapterNum = ref.read(chapterNumProvider);
+    int currentBookNum = ref.read(bookNumProvider);
+    BookTranslationType currentBookTransType = ref.read(currentBookTransProvider);
+    int bookChapterTotalCount = getChaptersCountFromBook(currentBookNum);
+
+    if (currentChapterNum < bookChapterTotalCount) {
+      int newChapterNum = currentChapterNum + 1;
+      ref.read(chapterNumProvider.notifier).state = newChapterNum;
+      _updateVerseList(currentBookNum, newChapterNum, currentBookTransType);
+    } else {
+      //move to the next book starting from chapter 1
+      if (currentBookNum < booksData.length) {
+        int newBookNum = currentBookNum + 1;
+        int newChapterNum = 1;
+        ref.read(chapterNumProvider.notifier).state = newChapterNum;
+        ref.read(bookNumProvider.notifier).state = newBookNum;
+        _updateVerseList(newBookNum, newChapterNum, currentBookTransType);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Last Chapter of the Bible Reached!')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Verse> verseList = ref.watch(currentVerseListStateNotifierProvider);
-    int currentBookNum = ref.watch(bookNumProvider);
-    int currentChapterNum = ref.watch(chapterNumProvider);
-    BookTranslationType currentBookTransType = ref.watch(currentBookTransProvider);
     List<Verse> selectedVerses = ref.watch(selectedVerseProvider);
 
     return Scaffold(
@@ -182,17 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 children: [
                   SizedBox(
                     child: IconButton(
-                      onPressed: () {
-                        if (currentChapterNum > 1) {
-                          ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
-                          ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                                ref,
-                                currentBookNum,
-                                currentChapterNum,
-                                currentBookTransType,
-                              );
-                        }
-                      },
+                      onPressed: _handlePrevBtn,
                       icon: const Icon(Icons.arrow_back_ios),
                     ),
                   ),
@@ -210,15 +263,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   SizedBox(
                     child: IconButton(
-                      onPressed: () {
-                        ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
-                        ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-                              ref,
-                              currentBookNum,
-                              currentChapterNum,
-                              currentBookTransType,
-                            );
-                      },
+                      onPressed: _handleNextBtn,
                       icon: const Icon(Icons.arrow_forward_ios),
                     ),
                   ),
