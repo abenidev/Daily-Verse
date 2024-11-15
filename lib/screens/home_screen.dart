@@ -7,6 +7,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nb_utils/nb_utils.dart';
 
+final bookNumProvider = StateProvider<int>((ref) {
+  return 1;
+});
+
+final chapterNumProvider = StateProvider<int>((ref) {
+  return 1;
+});
+
+final verseNumProvider = StateProvider<int>((ref) {
+  return 1;
+});
+
+final currentBookTransProvider = StateProvider<BookTranslationType>((ref) {
+  return BookTranslationType.niv;
+});
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,11 +40,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   _init() {
+    int initBookNum = ref.read(bookNumProvider);
+    int initChapterNum = ref.read(chapterNumProvider);
+    BookTranslationType currentBookTransType = ref.read(currentBookTransProvider);
+
     ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
           ref,
           // 19, 119,
-          1, 1,
-          BookTranslationType.niv,
+          initBookNum, initChapterNum,
+          currentBookTransType,
         );
   }
 
@@ -70,15 +90,59 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     List<Verse> verseList = ref.watch(currentVerseListStateNotifierProvider);
+    int currentBookNum = ref.watch(bookNumProvider);
+    int currentChapterNum = ref.watch(chapterNumProvider);
+    BookTranslationType currentBookTransType = ref.watch(currentBookTransProvider);
 
     return Scaffold(
       appBar: AppBar(
-        // title: Text(verseList.isNotEmpty ? verseList[0].bna : ''),
-        //!home_widget----------------------
+        title: Text(verseList.isNotEmpty ? '${verseList[0].bna} ${verseList[0].ch}' : ''),
         actions: [
           IconButton(
+            onPressed: () {
+              if (currentBookTransType == BookTranslationType.niv) {
+                ref.read(currentBookTransProvider.notifier).state = BookTranslationType.amv;
+              } else if (currentBookTransType == BookTranslationType.amv) {
+                ref.read(currentBookTransProvider.notifier).state = BookTranslationType.niv;
+              }
+              ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                    ref,
+                    currentBookNum,
+                    currentChapterNum,
+                    currentBookTransType,
+                  );
+            },
+            icon: const Icon(Icons.change_circle),
+          ),
+          IconButton(
+            onPressed: () {
+              if (currentChapterNum > 1) {
+                ref.read(chapterNumProvider.notifier).state = currentChapterNum - 1;
+                ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                      ref,
+                      currentBookNum,
+                      currentChapterNum,
+                      currentBookTransType,
+                    );
+              }
+            },
+            icon: const Icon(Icons.arrow_back_ios),
+          ),
+          IconButton(
+            onPressed: () {
+              ref.read(chapterNumProvider.notifier).state = currentChapterNum + 1;
+              ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
+                    ref,
+                    currentBookNum,
+                    currentChapterNum,
+                    currentBookTransType,
+                  );
+            },
+            icon: const Icon(Icons.arrow_forward_ios),
+          ),
+          //!home_widget----------------------
+          IconButton(
             onPressed: () async {
-              //
               // await HomeWidget.saveWidgetData('appWidgetText', "New App Widget Text");
               // await HomeWidget.updateWidget(
               //   qualifiedAndroidName: "dev.abeni.daily_verse.HomeScreenWidget",
@@ -87,8 +151,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
             icon: const Icon(Icons.restart_alt),
           ),
+          //!home_widget----------------------
         ],
-        //!home_widget----------------------
       ),
       body: NotificationListener<OverscrollIndicatorNotification>(
         onNotification: (overscroll) {
@@ -142,6 +206,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
               ),
+              SizedBox(height: 30.h),
             ],
           ),
         ),
