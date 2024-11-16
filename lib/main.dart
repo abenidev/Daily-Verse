@@ -106,20 +106,17 @@ class _RootState extends ConsumerState<Root> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // bool isDarkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
-
     return Scaffold(
-      // backgroundColor: isDarkMode ? const Color(0xff740938) : const Color(0xffAF1740),
       body: Container(
         decoration: const BoxDecoration(),
         child: Center(
           child: ScaleTransition(
             scale: tween.animate(CurvedAnimation(parent: controller, curve: Curves.ease)),
-            // child: Image(
-            //   height: 100.h,
-            //   width: 100.w,
-            //   image: const AssetImage('assets/icon/icon_round.png'),
-            // ),
+            child: Image(
+              height: 100.h,
+              width: 100.w,
+              image: const AssetImage('assets/icon/icon_round.png'),
+            ),
           ),
         ),
       ),
