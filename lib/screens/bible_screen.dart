@@ -1,3 +1,4 @@
+import 'package:daily_verse/constants/app_enums.dart';
 import 'package:daily_verse/constants/app_nums.dart';
 import 'package:daily_verse/data/amv_books.dart';
 import 'package:daily_verse/data/books_data.dart';
@@ -9,7 +10,6 @@ import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:daily_verse/utils/render_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -32,7 +32,7 @@ final selectedVerseProvider = StateProvider<List<Verse>>((ref) {
 });
 
 final currentBookTransProvider = StateProvider<BookTranslationType>((ref) {
-  return BookTranslationType.niv;
+  return defaultBookTransType;
 });
 
 class BibleScreen extends ConsumerStatefulWidget {
@@ -44,13 +44,11 @@ class BibleScreen extends ConsumerStatefulWidget {
 
 class _BibleScreenState extends ConsumerState<BibleScreen> {
   late ScrollController _scrollController;
-  late FlutterListViewController _booksListViewController;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _booksListViewController = FlutterListViewController();
     afterBuildCreated(() {
       _init();
     });
@@ -59,7 +57,6 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _booksListViewController.dispose();
     super.dispose();
   }
 
@@ -160,55 +157,35 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
 
   _handleOnBookTap() {
     BookTranslationType bookTranslationType = ref.read(currentBookTransProvider);
+    bool isBookTransTypeAmv = bookTranslationType == BookTranslationType.amv;
 
     showBarModalBottomSheet(
       context: context,
+      duration: const Duration(milliseconds: 200),
+      backgroundColor: Theme.of(context).canvasColor,
       builder: (context) {
         List<String> nivBookNames = nivBooksNameToNum.keys.toList();
         List<String> amvBookNames = amvBooksNameToNum.keys.toList();
 
-        List<String> activeBookNames = bookTranslationType == BookTranslationType.niv ? [...nivBookNames] : [...amvBookNames];
-        _booksListViewController.sliverController.jumpToIndex(42);
+        List<String> activeBookNames = isBookTransTypeAmv ? [...amvBookNames] : [...nivBookNames];
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-          child: FlutterListView(
-            controller: _booksListViewController,
-            delegate: FlutterListViewDelegate(
-              (BuildContext context, int index) => Container(
-                color: Colors.white,
-                child: ListTile(
-                  onTap: () {
-                    //
-                  },
-                  title: Text(
-                    activeBookNames[index],
-                    style: TextStyle(fontSize: 16.sp),
-                  ),
+          child: ListView.builder(
+            itemCount: activeBookNames.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                onTap: () {
+                  //
+                },
+                title: Text(
+                  activeBookNames[index],
+                  style: TextStyle(fontSize: 16.sp),
                 ),
-              ),
-              childCount: activeBookNames.length,
-            ),
+              );
+            },
           ),
         );
-        //!
-        // return Container(
-        //   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-        //   child: ListView.builder(
-        //     itemCount: activeBookNames.length,
-        //     itemBuilder: (context, index) {
-        //       return ListTile(
-        //         onTap: () {
-        //           //
-        //         },
-        //         title: Text(
-        //           activeBookNames[index],
-        //           style: TextStyle(fontSize: 16.sp),
-        //         ),
-        //       );
-        //     },
-        //   ),
-        // );
       },
     );
   }
@@ -217,6 +194,8 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
   Widget build(BuildContext context) {
     List<Verse> verseList = ref.watch(currentVerseListStateNotifierProvider);
     List<Verse> selectedVerses = ref.watch(selectedVerseProvider);
+    BookTranslationType currentBookTransType = ref.watch(currentBookTransProvider);
+    bool isBookTransTypeAmv = currentBookTransType == BookTranslationType.amv;
 
     return Scaffold(
       body: SafeArea(
@@ -236,9 +215,19 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                       Expanded(
                         child: ListView.builder(
                           controller: _scrollController,
-                          itemCount: verseList.length,
+                          itemCount: isBookTransTypeAmv ? verseList.length + 1 : verseList.length,
                           itemBuilder: (context, index) {
-                            Verse verse = verseList[index];
+                            if (isBookTransTypeAmv && index == 0) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 20.h),
+                                child: Text(
+                                  verseList.isEmpty ? "" : "${verseList[0].bna} ${verseList[0].ch}",
+                                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
+                                ),
+                              );
+                            }
+
+                            Verse verse = isBookTransTypeAmv ? verseList[index - 1] : verseList[index];
 
                             if (verse.hnu != null) {
                               if (verse.hnu == 1) {
@@ -261,7 +250,9 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                             }
 
                             return Padding(
-                              padding: EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 5.h),
+                              padding: isBookTransTypeAmv
+                                  ? EdgeInsets.only(bottom: index == verseList.length ? 50.h : 5.h)
+                                  : EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 5.h),
                               child: GestureDetector(
                                 onTap: () {
                                   List<Verse> updatedSelectedVerses = [...selectedVerses];
