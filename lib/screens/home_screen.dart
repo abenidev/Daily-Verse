@@ -1,4 +1,5 @@
 import 'package:daily_verse/screens/bible_screen.dart';
+import 'package:daily_verse/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -36,7 +37,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     Center(child: Text("Home Screen")),
     BibleScreen(),
     Center(child: Text("Collections Screen")),
-    Center(child: Text("Profile Screen")),
+    ProfileScreen(),
   ];
 
   @override

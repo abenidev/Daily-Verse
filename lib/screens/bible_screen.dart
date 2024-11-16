@@ -8,6 +8,7 @@ import 'package:daily_verse/helpers/shared_prefs_helper.dart';
 import 'package:daily_verse/models/app_data.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
+import 'package:daily_verse/utils/app_utils.dart';
 import 'package:daily_verse/utils/render_util.dart';
 import 'package:expansion_tile_group/expansion_tile_group.dart';
 import 'package:flutter/material.dart';
@@ -87,17 +88,6 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
     return booksData[bookNum - 1]["chs"][chapterNum];
   }
 
-  _updateVerseList(int currentBookNum, int currentChapterNum, BookTranslationType currentBookTransType) {
-    ref.read(currentVerseListStateNotifierProvider.notifier).setVerseList(
-          ref,
-          currentBookNum,
-          currentChapterNum,
-          currentBookTransType,
-        );
-    AppData appData = SharedPrefsHelper.getAppData();
-    SharedPrefsHelper.setAppData(appData.copyWith(currentBookNum: currentBookNum, currentChapterNum: currentChapterNum));
-  }
-
   _handlePrevBtn() {
     int currentChapterNum = ref.read(chapterNumProvider);
     int currentBookNum = ref.read(bookNumProvider);
@@ -106,7 +96,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
     if (currentChapterNum > 1) {
       int newChapterNum = currentChapterNum - 1;
       ref.read(chapterNumProvider.notifier).state = newChapterNum;
-      _updateVerseList(currentBookNum, newChapterNum, currentBookTransType);
+      updateVerseList(ref, currentBookNum, newChapterNum, currentBookTransType);
     } else {
       //move to the prev book starting from chapter 1
       if (currentBookNum > 1) {
@@ -115,7 +105,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
         int newChapterNum = bookChapterTotalCount;
         ref.read(chapterNumProvider.notifier).state = newChapterNum;
         ref.read(bookNumProvider.notifier).state = newBookNum;
-        _updateVerseList(newBookNum, newChapterNum, currentBookTransType);
+        updateVerseList(ref, newBookNum, newChapterNum, currentBookTransType);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('First Chapter of the Bible Reached!')));
       }
@@ -132,7 +122,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
     if (currentChapterNum < bookChapterTotalCount) {
       int newChapterNum = currentChapterNum + 1;
       ref.read(chapterNumProvider.notifier).state = newChapterNum;
-      _updateVerseList(currentBookNum, newChapterNum, currentBookTransType);
+      updateVerseList(ref, currentBookNum, newChapterNum, currentBookTransType);
     } else {
       //move to the next book starting from chapter 1
       if (currentBookNum < booksData.length) {
@@ -140,7 +130,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
         int newChapterNum = 1;
         ref.read(chapterNumProvider.notifier).state = newChapterNum;
         ref.read(bookNumProvider.notifier).state = newBookNum;
-        _updateVerseList(newBookNum, newChapterNum, currentBookTransType);
+        updateVerseList(ref, newBookNum, newChapterNum, currentBookTransType);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Last Chapter of the Bible Reached!')));
       }
@@ -184,7 +174,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                 isHasTopBorder: false,
                 isHasBottomBorder: false,
                 tilePadding: EdgeInsets.symmetric(horizontal: 20.w),
-                childrenPadding: EdgeInsets.only(left: 12.w, right: 2.w),
+                childrenPadding: EdgeInsets.only(left: 12.w, right: 2.w, top: 10.h),
                 title: Text(
                   activeBookNames[index],
                   style: TextStyle(fontSize: 16.sp),
@@ -202,7 +192,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                             onTap: () {
                               ref.read(bookNumProvider.notifier).state = selectedBookNum;
                               ref.read(chapterNumProvider.notifier).state = selectedChapter;
-                              _updateVerseList(selectedBookNum, selectedChapter, bookTranslationType);
+                              updateVerseList(ref, selectedBookNum, selectedChapter, bookTranslationType);
                               Navigator.pop(context);
                             },
                             child: Container(
@@ -379,7 +369,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                   GestureDetector(
                     onTap: _handleOnBookTap,
                     child: Container(
-                      width: 150.w,
+                      width: 215.w,
                       decoration: const BoxDecoration(),
                       child: Center(
                         child: Text(
