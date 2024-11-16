@@ -9,6 +9,7 @@ import 'package:daily_verse/models/app_data.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:daily_verse/utils/render_util.dart';
+import 'package:expansion_tile_group/expansion_tile_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -166,22 +167,65 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
       builder: (context) {
         List<String> nivBookNames = nivBooksNameToNum.keys.toList();
         List<String> amvBookNames = amvBooksNameToNum.keys.toList();
-
         List<String> activeBookNames = isBookTransTypeAmv ? [...amvBookNames] : [...nivBookNames];
 
         return Container(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+          padding: EdgeInsets.symmetric(vertical: 15.h),
           child: ListView.builder(
             itemCount: activeBookNames.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                onTap: () {
-                  //
-                },
+              int selectedBookNum = index + 1;
+              int bookChapterCount = booksData[index]["c"];
+
+              return ExpansionTileItem(
+                border: null,
+                expendedBorderColor: null,
+                collapsedBorderColor: null,
+                isHasTopBorder: false,
+                isHasBottomBorder: false,
+                tilePadding: EdgeInsets.symmetric(horizontal: 20.w),
+                childrenPadding: EdgeInsets.only(left: 12.w, right: 2.w),
                 title: Text(
                   activeBookNames[index],
                   style: TextStyle(fontSize: 16.sp),
                 ),
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(),
+                    child: Wrap(
+                      children: List.generate(
+                        bookChapterCount,
+                        (chapterIndex) {
+                          int selectedChapter = chapterIndex + 1;
+                          return InkWell(
+                            borderRadius: BorderRadius.circular(10.w),
+                            onTap: () {
+                              ref.read(bookNumProvider.notifier).state = selectedBookNum;
+                              ref.read(chapterNumProvider.notifier).state = selectedChapter;
+                              _updateVerseList(selectedBookNum, selectedChapter, bookTranslationType);
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              width: 50,
+                              height: 50,
+                              margin: EdgeInsets.only(right: 5.w, bottom: 5.h),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).focusColor,
+                                borderRadius: BorderRadius.circular(10.w),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "${chapterIndex + 1}",
+                                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
