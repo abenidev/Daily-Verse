@@ -21,7 +21,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="daily_verse">
+        android:label="Daily Verse">
         <receiver
             android:name=".HomeScreenWidget"
             android:exported="false">
