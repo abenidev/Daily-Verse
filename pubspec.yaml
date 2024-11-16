@@ -42,7 +42,7 @@ dependencies:
   objectbox_flutter_libs: any
   home_widget: ^0.7.0
   styled_text_advance: ^1.0.1+10
-
+  flutter_list_view: ^1.1.28
 
 dev_dependencies:
   flutter_test:

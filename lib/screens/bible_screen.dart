@@ -1,4 +1,7 @@
+import 'package:daily_verse/constants/app_nums.dart';
+import 'package:daily_verse/data/amv_books.dart';
 import 'package:daily_verse/data/books_data.dart';
+import 'package:daily_verse/data/niv_books.dart';
 import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/helpers/shared_prefs_helper.dart';
 import 'package:daily_verse/models/app_data.dart';
@@ -6,20 +9,22 @@ import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
 import 'package:daily_verse/utils/render_util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 final bookNumProvider = StateProvider<int>((ref) {
-  return 1;
+  return defaultCurrentBookNum;
 });
 
 final chapterNumProvider = StateProvider<int>((ref) {
-  return 1;
+  return defaultCurrentChapterNum;
 });
 
 final verseNumProvider = StateProvider<int>((ref) {
-  return 1;
+  return defaultCurrentVerseNum;
 });
 
 final selectedVerseProvider = StateProvider<List<Verse>>((ref) {
@@ -39,11 +44,13 @@ class BibleScreen extends ConsumerStatefulWidget {
 
 class _BibleScreenState extends ConsumerState<BibleScreen> {
   late ScrollController _scrollController;
+  late FlutterListViewController _booksListViewController;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    _booksListViewController = FlutterListViewController();
     afterBuildCreated(() {
       _init();
     });
@@ -52,6 +59,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _booksListViewController.dispose();
     super.dispose();
   }
 
@@ -147,6 +155,61 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
       0, // scroll position to scroll to (top of the list)
       duration: const Duration(milliseconds: 200), // Duration of the animation
       curve: Curves.easeInOut, // Animation curve
+    );
+  }
+
+  _handleOnBookTap() {
+    BookTranslationType bookTranslationType = ref.read(currentBookTransProvider);
+
+    showBarModalBottomSheet(
+      context: context,
+      builder: (context) {
+        List<String> nivBookNames = nivBooksNameToNum.keys.toList();
+        List<String> amvBookNames = amvBooksNameToNum.keys.toList();
+
+        List<String> activeBookNames = bookTranslationType == BookTranslationType.niv ? [...nivBookNames] : [...amvBookNames];
+        _booksListViewController.sliverController.jumpToIndex(42);
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+          child: FlutterListView(
+            controller: _booksListViewController,
+            delegate: FlutterListViewDelegate(
+              (BuildContext context, int index) => Container(
+                color: Colors.white,
+                child: ListTile(
+                  onTap: () {
+                    //
+                  },
+                  title: Text(
+                    activeBookNames[index],
+                    style: TextStyle(fontSize: 16.sp),
+                  ),
+                ),
+              ),
+              childCount: activeBookNames.length,
+            ),
+          ),
+        );
+        //!
+        // return Container(
+        //   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+        //   child: ListView.builder(
+        //     itemCount: activeBookNames.length,
+        //     itemBuilder: (context, index) {
+        //       return ListTile(
+        //         onTap: () {
+        //           //
+        //         },
+        //         title: Text(
+        //           activeBookNames[index],
+        //           style: TextStyle(fontSize: 16.sp),
+        //         ),
+        //       );
+        //     },
+        //   ),
+        // );
+      },
     );
   }
 
@@ -279,14 +342,15 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      //
-                    },
+                    onTap: _handleOnBookTap,
                     child: Container(
+                      width: 150.w,
                       decoration: const BoxDecoration(),
-                      child: Text(
-                        verseList.isNotEmpty ? verseList[0].bna : '',
-                        style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                      child: Center(
+                        child: Text(
+                          verseList.isNotEmpty ? verseList[0].bna : '',
+                          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                   ),
