@@ -14,6 +14,8 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
+import 'models/bookmark.dart';
+import 'models/collection.dart';
 import 'models/verse.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
@@ -77,7 +79,85 @@ final _entities = <obx_int.ModelEntity>[
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
-      backlinks: <obx_int.ModelBacklink>[])
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(2, 5567680083426082629),
+      name: 'Bookmark',
+      lastPropertyId: const obx_int.IdUid(6, 725200878183070418),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 3451342372991483936),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 6907858222327019915),
+            name: 'bookNum',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 2775009625656103758),
+            name: 'chapterNum',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 6487288531535735244),
+            name: 'verseNum',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 941262736178594652),
+            name: 'createdAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(6, 725200878183070418),
+            name: 'collectionId',
+            type: 11,
+            flags: 520,
+            indexId: const obx_int.IdUid(1, 1943632294642304639),
+            relationTarget: 'Collection')
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(3, 5738018406601266125),
+      name: 'Collection',
+      lastPropertyId: const obx_int.IdUid(5, 8270318809095682730),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 511373392619196494),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 2566960898507191920),
+            name: 'createdAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 8446691585734709088),
+            name: 'updatedAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 4899680390863230883),
+            name: 'name',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 8270318809095682730),
+            name: 'color',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[
+        obx_int.ModelBacklink(
+            name: 'bookmarks', srcEntity: 'Bookmark', srcField: '')
+      ])
 ];
 
 /// Shortcut for [obx.Store.new] that passes [getObjectBoxModel] and for Flutter
@@ -115,8 +195,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(1, 7435368780268513428),
-      lastIndexId: const obx_int.IdUid(0, 0),
+      lastEntityId: const obx_int.IdUid(3, 5738018406601266125),
+      lastIndexId: const obx_int.IdUid(1, 1943632294642304639),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
@@ -192,6 +272,99 @@ obx_int.ModelDefinition getObjectBoxModel() {
               hnu: hnuParam);
 
           return object;
+        }),
+    Bookmark: obx_int.EntityDefinition<Bookmark>(
+        model: _entities[1],
+        toOneRelations: (Bookmark object) => [object.collection],
+        toManyRelations: (Bookmark object) => {},
+        getId: (Bookmark object) => object.id,
+        setId: (Bookmark object, int id) {
+          object.id = id;
+        },
+        objectToFB: (Bookmark object, fb.Builder fbb) {
+          fbb.startTable(7);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.bookNum);
+          fbb.addInt64(2, object.chapterNum);
+          fbb.addInt64(3, object.verseNum);
+          fbb.addInt64(4, object.createdAt.millisecondsSinceEpoch);
+          fbb.addInt64(5, object.collection.targetId);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final bookNumParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0);
+          final chapterNumParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0);
+          final verseNumParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0));
+          final object = Bookmark(
+              id: idParam,
+              bookNum: bookNumParam,
+              chapterNum: chapterNumParam,
+              verseNum: verseNumParam,
+              createdAt: createdAtParam);
+          object.collection.targetId =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0);
+          object.collection.attach(store);
+          return object;
+        }),
+    Collection: obx_int.EntityDefinition<Collection>(
+        model: _entities[2],
+        toOneRelations: (Collection object) => [],
+        toManyRelations: (Collection object) => {
+              obx_int.RelInfo<Bookmark>.toOneBacklink(6, object.id,
+                      (Bookmark srcObject) => srcObject.collection):
+                  object.bookmarks
+            },
+        getId: (Collection object) => object.id,
+        setId: (Collection object, int id) {
+          object.id = id;
+        },
+        objectToFB: (Collection object, fb.Builder fbb) {
+          final nameOffset = fbb.writeString(object.name);
+          final colorOffset = fbb.writeString(object.color);
+          fbb.startTable(6);
+          fbb.addInt64(0, object.id);
+          fbb.addInt64(1, object.createdAt.millisecondsSinceEpoch);
+          fbb.addInt64(2, object.updatedAt.millisecondsSinceEpoch);
+          fbb.addOffset(3, nameOffset);
+          fbb.addOffset(4, colorOffset);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 6, 0));
+          final updatedAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0));
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 10, '');
+          final colorParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 12, '');
+          final object = Collection(
+              id: idParam,
+              createdAt: createdAtParam,
+              updatedAt: updatedAtParam,
+              name: nameParam,
+              color: colorParam);
+          obx_int.InternalToManyAccess.setRelInfo<Collection>(
+              object.bookmarks,
+              store,
+              obx_int.RelInfo<Bookmark>.toOneBacklink(
+                  6, object.id, (Bookmark srcObject) => srcObject.collection));
+          return object;
         })
   };
 
@@ -231,4 +404,58 @@ class Verse_ {
 
   /// See [Verse.hnu].
   static final hnu = obx.QueryDoubleProperty<Verse>(_entities[0].properties[9]);
+}
+
+/// [Bookmark] entity fields to define ObjectBox queries.
+class Bookmark_ {
+  /// See [Bookmark.id].
+  static final id =
+      obx.QueryIntegerProperty<Bookmark>(_entities[1].properties[0]);
+
+  /// See [Bookmark.bookNum].
+  static final bookNum =
+      obx.QueryIntegerProperty<Bookmark>(_entities[1].properties[1]);
+
+  /// See [Bookmark.chapterNum].
+  static final chapterNum =
+      obx.QueryIntegerProperty<Bookmark>(_entities[1].properties[2]);
+
+  /// See [Bookmark.verseNum].
+  static final verseNum =
+      obx.QueryIntegerProperty<Bookmark>(_entities[1].properties[3]);
+
+  /// See [Bookmark.createdAt].
+  static final createdAt =
+      obx.QueryDateProperty<Bookmark>(_entities[1].properties[4]);
+
+  /// See [Bookmark.collection].
+  static final collection =
+      obx.QueryRelationToOne<Bookmark, Collection>(_entities[1].properties[5]);
+}
+
+/// [Collection] entity fields to define ObjectBox queries.
+class Collection_ {
+  /// See [Collection.id].
+  static final id =
+      obx.QueryIntegerProperty<Collection>(_entities[2].properties[0]);
+
+  /// See [Collection.createdAt].
+  static final createdAt =
+      obx.QueryDateProperty<Collection>(_entities[2].properties[1]);
+
+  /// See [Collection.updatedAt].
+  static final updatedAt =
+      obx.QueryDateProperty<Collection>(_entities[2].properties[2]);
+
+  /// See [Collection.name].
+  static final name =
+      obx.QueryStringProperty<Collection>(_entities[2].properties[3]);
+
+  /// See [Collection.color].
+  static final color =
+      obx.QueryStringProperty<Collection>(_entities[2].properties[4]);
+
+  /// see [Collection.bookmarks]
+  static final bookmarks =
+      obx.QueryBacklinkToMany<Bookmark, Collection>(Bookmark_.collection);
 }

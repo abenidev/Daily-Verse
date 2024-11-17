@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:daily_verse/constants/app_strings.dart';
+import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/helpers/shared_prefs_helper.dart';
 import 'package:daily_verse/main.dart';
+import 'package:daily_verse/models/bookmark.dart';
+import 'package:daily_verse/models/collection.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/objectbox.g.dart';
+import 'package:daily_verse/screens/collection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,6 +99,8 @@ class BoxLoader {
 
   static final nivVerseBox = nivObjectBox.store.box<Verse>();
   static final amvVerseBox = amvObjectBox.store.box<Verse>();
+  static final collectionsBox = nivObjectBox.store.box<Collection>();
+  static final bookmarksBox = nivObjectBox.store.box<Bookmark>();
 
   //*--------------------------------------NIV-----------------------------------
   static Future<bool> _loadNivVersesFromAssetJson() async {
@@ -120,6 +126,16 @@ class BoxLoader {
     return true;
   }
 
+  //*-------------------------------------collections------------------------------
+  static int addCollection(Collection newCollection) {
+    return collectionsBox.put(newCollection);
+  }
+
+  static void loadCollections(WidgetRef ref) {
+    List<Collection> loadedCollections = BoxQueryHelper.getCollections();
+    ref.read(collectionsListProvider.notifier).state = [...loadedCollections];
+  }
+
   //
   static Future<bool> loadData(WidgetRef ref) async {
     //*---------------------------------------------Niv verses loading start
@@ -143,6 +159,8 @@ class BoxLoader {
     } else {
       isAmvVersesLoaded = await BoxLoader._loadAmVVersesFromAssetJson();
     }
+
+    loadCollections(ref);
 
     if (isNivVersesLoaded && isAmvVersesLoaded) {
       bool isSaved = await SharedPrefsHelper.setIsTranslationsLoaded(true);

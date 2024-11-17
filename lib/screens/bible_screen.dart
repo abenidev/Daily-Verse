@@ -12,6 +12,7 @@ import 'package:daily_verse/utils/app_utils.dart';
 import 'package:daily_verse/utils/render_util.dart';
 import 'package:expansion_tile_group/expansion_tile_group.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -193,6 +194,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                               ref.read(bookNumProvider.notifier).state = selectedBookNum;
                               ref.read(chapterNumProvider.notifier).state = selectedChapter;
                               updateVerseList(ref, selectedBookNum, selectedChapter, bookTranslationType);
+                              _scrollToTop();
                               Navigator.pop(context);
                             },
                             child: Container(
@@ -236,118 +238,149 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
         child: Column(
           children: [
             Expanded(
-              child: NotificationListener<OverscrollIndicatorNotification>(
-                onNotification: (overscroll) {
-                  overscroll.disallowIndicator();
-                  return true;
-                },
-                child: Container(
-                  decoration: const BoxDecoration(),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: isBookTransTypeAmv ? verseList.length + 1 : verseList.length,
-                          itemBuilder: (context, index) {
-                            if (isBookTransTypeAmv && index == 0) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20.h),
-                                child: Text(
-                                  verseList.isEmpty ? "" : "${verseList[0].bna} ${verseList[0].ch}",
-                                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
-                                ),
-                              );
-                            }
+              child: Stack(
+                children: [
+                  NotificationListener<OverscrollIndicatorNotification>(
+                    onNotification: (overscroll) {
+                      overscroll.disallowIndicator();
+                      return true;
+                    },
+                    child: Container(
+                      decoration: const BoxDecoration(),
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemCount: isBookTransTypeAmv ? verseList.length + 1 : verseList.length,
+                              itemBuilder: (context, index) {
+                                if (isBookTransTypeAmv && index == 0) {
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                                    child: Text(
+                                      verseList.isEmpty ? "" : "${verseList[0].bna} ${verseList[0].ch}",
+                                      style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
+                                    ),
+                                  );
+                                }
 
-                            Verse verse = isBookTransTypeAmv ? verseList[index - 1] : verseList[index];
+                                Verse verse = isBookTransTypeAmv ? verseList[index - 1] : verseList[index];
 
-                            if (verse.hnu != null) {
-                              if (verse.hnu == 1) {
-                                return Padding(
-                                  padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
-                                  child: Text(
-                                    renderVerseText(verse),
-                                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
-                                  ),
-                                );
-                              } else {
-                                return Padding(
-                                  padding: EdgeInsets.only(bottom: 10.h),
-                                  child: Text(
-                                    renderVerseText(verse),
-                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
-                                  ),
-                                );
-                              }
-                            }
-
-                            return Padding(
-                              padding: isBookTransTypeAmv
-                                  ? EdgeInsets.only(bottom: index == verseList.length ? 50.h : 5.h)
-                                  : EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 5.h),
-                              child: GestureDetector(
-                                onTap: () {
-                                  List<Verse> updatedSelectedVerses = [...selectedVerses];
-                                  if (updatedSelectedVerses.contains(verse)) {
-                                    updatedSelectedVerses.remove(verse);
+                                if (verse.hnu != null) {
+                                  if (verse.hnu == 1) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
+                                      child: Text(
+                                        renderVerseText(verse),
+                                        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 32.sp),
+                                      ),
+                                    );
                                   } else {
-                                    updatedSelectedVerses.add(verse);
+                                    return Padding(
+                                      padding: EdgeInsets.only(bottom: 10.h),
+                                      child: Text(
+                                        renderVerseText(verse),
+                                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18.sp),
+                                      ),
+                                    );
                                   }
-                                  ref.read(selectedVerseProvider.notifier).state = [...updatedSelectedVerses];
-                                },
-                                child: Container(
-                                  //!-----------for when verse is selected
-                                  padding: selectedVerses.contains(verse) ? EdgeInsets.symmetric(horizontal: 2.h) : null,
-                                  decoration: selectedVerses.contains(verse)
-                                      ? BoxDecoration(
-                                          color: Theme.of(context).secondaryHeaderColor,
-                                          border: Border(
-                                            left: BorderSide(width: 2, color: Theme.of(context).primaryColor),
-                                            right: BorderSide(width: 2, color: Theme.of(context).primaryColor),
-                                          ),
-                                        )
-                                      : null,
-                                  //!-----------
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Text.rich(
-                                          TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: '   ${renderVerseNum(verse)}. ',
-                                                style: TextStyle(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  height: 1.6,
-                                                ),
+                                }
+
+                                return Padding(
+                                  padding: isBookTransTypeAmv
+                                      ? EdgeInsets.only(bottom: index == verseList.length ? 50.h : 5.h)
+                                      : EdgeInsets.only(bottom: index == verseList.length - 1 ? 50.h : 5.h),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      List<Verse> updatedSelectedVerses = [...selectedVerses];
+                                      if (updatedSelectedVerses.contains(verse)) {
+                                        updatedSelectedVerses.remove(verse);
+                                      } else {
+                                        updatedSelectedVerses.add(verse);
+                                      }
+                                      ref.read(selectedVerseProvider.notifier).state = [...updatedSelectedVerses];
+                                    },
+                                    child: Container(
+                                      //!-----------for when verse is selected
+                                      padding: selectedVerses.contains(verse) ? EdgeInsets.symmetric(horizontal: 2.h) : null,
+                                      decoration: selectedVerses.contains(verse)
+                                          ? BoxDecoration(
+                                              color: Theme.of(context).secondaryHeaderColor,
+                                              border: Border(
+                                                left: BorderSide(width: 2, color: Theme.of(context).primaryColor),
+                                                right: BorderSide(width: 2, color: Theme.of(context).primaryColor),
                                               ),
+                                            )
+                                          : null,
+                                      //!-----------
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text.rich(
                                               TextSpan(
-                                                text: renderVerseText(verse),
-                                                style: TextStyle(
-                                                  fontSize: 16.sp,
-                                                  fontWeight: FontWeight.w400,
-                                                  height: 1.6,
-                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                    text: '   ${renderVerseNum(verse)}. ',
+                                                    style: TextStyle(
+                                                      fontSize: 14.sp,
+                                                      fontWeight: FontWeight.w600,
+                                                      height: 1.6,
+                                                    ),
+                                                  ),
+                                                  TextSpan(
+                                                    text: renderVerseText(verse),
+                                                    style: TextStyle(
+                                                      fontSize: 16.sp,
+                                                      fontWeight: FontWeight.w400,
+                                                      height: 1.6,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  //
+                  if (selectedVerses.isNotEmpty) ...[
+                    Animate(
+                      effects: const [
+                        ScaleEffect(duration: Duration(milliseconds: 100)),
+                      ],
+                      child: Positioned(
+                        bottom: 10,
+                        right: 20,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).dividerColor,
+                            borderRadius: BorderRadius.circular(5.w),
+                          ),
+                          child: IconButton(
+                            onPressed: () {
+                              //
+                            },
+                            icon: Icon(Icons.add, size: 22.w),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  ],
+
+                  //
+                ],
               ),
             ),
 

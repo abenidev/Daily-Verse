@@ -1,5 +1,6 @@
 import 'package:daily_verse/constants/app_strings.dart';
 import 'package:daily_verse/helpers/object_box_helper.dart';
+import 'package:daily_verse/models/collection.dart';
 import 'package:daily_verse/models/verse.dart';
 import 'package:daily_verse/objectbox.g.dart';
 
@@ -55,5 +56,12 @@ class BoxQueryHelper {
     final results = query.find();
     query.close();
     return results;
+  }
+
+  static List<Collection> getCollections() {
+    Query<Collection> query = BoxLoader.collectionsBox.query().build();
+    List<Collection> collections = query.find();
+    query.close();
+    return collections;
   }
 }
