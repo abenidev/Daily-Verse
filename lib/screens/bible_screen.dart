@@ -267,7 +267,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
 
                                 Verse verse = isBookTransTypeAmv ? verseList[index - 1] : verseList[index];
 
-                                if (verse.hnu != null) {
+                                if (verse.hnu != null && !isBookTransTypeAmv) {
                                   if (verse.hnu == 1) {
                                     return Padding(
                                       padding: EdgeInsets.only(bottom: 20.h, top: 20.h),
