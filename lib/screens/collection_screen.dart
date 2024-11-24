@@ -1,11 +1,12 @@
 import 'package:daily_verse/helpers/object_box_helper.dart';
 import 'package:daily_verse/models/collection.dart';
+import 'package:daily_verse/screens/bookmarks_screen.dart';
 import 'package:daily_verse/utils/app_utils.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 final collectionsListProvider = StateProvider<List<Collection>>((ref) {
   return [];
@@ -20,16 +21,19 @@ class CollectionScreen extends ConsumerStatefulWidget {
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   late TextEditingController _collNameEditingController;
+  late FocusNode _newCollFieldFocusNode;
 
   @override
   void initState() {
     super.initState();
     _collNameEditingController = TextEditingController();
+    _newCollFieldFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _collNameEditingController.dispose();
+    _newCollFieldFocusNode.dispose();
     super.dispose();
   }
 
@@ -46,17 +50,25 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showBarModalBottomSheet(
+          _newCollFieldFocusNode.requestFocus();
+          showModalBottomSheet(
             context: context,
             builder: (context) {
               return Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
                 decoration: const BoxDecoration(),
                 child: Column(
                   children: [
                     TextFormField(
+                      focusNode: _newCollFieldFocusNode,
                       controller: _collNameEditingController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        filled: true,
+                        fillColor: Theme.of(context).hoverColor,
+                      ),
                     ),
+                    SizedBox(height: 5.h),
                     ElevatedButton(
                       onPressed: () {
                         DateTime now = DateTime.now();
@@ -88,7 +100,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
 
             return ListTile(
               onTap: () {
-                //
+                Navigator.push(context, CupertinoPageRoute(builder: (context) => BookmarksScreen(coll: collection)));
               },
               leading: CircleAvatar(
                 radius: 10.w,

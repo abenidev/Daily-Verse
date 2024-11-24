@@ -3,14 +3,20 @@ import 'package:daily_verse/constants/app_nums.dart';
 import 'package:daily_verse/data/amv_books.dart';
 import 'package:daily_verse/data/books_data.dart';
 import 'package:daily_verse/data/niv_books.dart';
+import 'package:daily_verse/helpers/object_box_helper.dart';
 import 'package:daily_verse/helpers/query_helper.dart';
 import 'package:daily_verse/helpers/shared_prefs_helper.dart';
 import 'package:daily_verse/models/app_data.dart';
+import 'package:daily_verse/models/bookmark.dart';
+import 'package:daily_verse/models/collection.dart';
 import 'package:daily_verse/models/verse.dart';
+import 'package:daily_verse/objectbox.g.dart';
 import 'package:daily_verse/providers/current_verse_list_provider.dart';
+import 'package:daily_verse/screens/collection_screen.dart';
 import 'package:daily_verse/utils/app_utils.dart';
 import 'package:daily_verse/utils/render_util.dart';
 import 'package:expansion_tile_group/expansion_tile_group.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -153,7 +159,7 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
 
     showBarModalBottomSheet(
       context: context,
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 400),
       backgroundColor: Theme.of(context).canvasColor,
       builder: (context) {
         List<String> nivBookNames = nivBooksNameToNum.keys.toList();
@@ -370,7 +376,58 @@ class _BibleScreenState extends ConsumerState<BibleScreen> {
                           ),
                           child: IconButton(
                             onPressed: () {
-                              //
+                              List<Collection> collectionsList = ref.read(collectionsListProvider);
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(vertical: 20.h),
+                                    child: ListView.builder(
+                                      itemCount: collectionsList.length,
+                                      itemBuilder: (context, index) {
+                                        Collection coll = collectionsList[index];
+
+                                        return ListTile(
+                                          onTap: () {
+                                            List<Bookmark> bookmarks = getBookMarksFromVersesList(selectedVerses);
+
+                                            //get bookmarks from the collection
+                                            Query<Bookmark> query = BoxLoader.bookmarksBox.query(Bookmark_.collection.equals(coll.id)).build();
+                                            List<Bookmark> results = query.find();
+                                            query.close();
+
+                                            //
+                                            List<Bookmark> filteredBookmarkList = bookmarks.where((bookmark) {
+                                              bool isContained = isBookMarkContained(results, bookmark);
+                                              debugPrint('isContained: ${isContained}');
+                                              return !isContained;
+                                            }).toList();
+
+                                            for (Bookmark filteredBookmark in filteredBookmarkList) {
+                                              filteredBookmark.collection.target = coll;
+                                            }
+
+                                            List<int> bookmarkIds = BoxLoader.bookmarksBox.putMany(filteredBookmarkList);
+                                            debugPrint('bookmarkIds: ${bookmarkIds}');
+
+                                            ref.read(selectedVerseProvider.notifier).state = [];
+                                            Navigator.pop(context);
+                                          },
+                                          leading: CircleAvatar(
+                                            radius: 10.w,
+                                            backgroundColor: fromHexString(coll.color),
+                                          ),
+                                          title: Text(
+                                            coll.name.capitalize,
+                                            style: TextStyle(fontSize: 16.sp),
+                                          ),
+                                          // trailing: Icon(Icons.arrow_forward_ios, size: 18.w),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              );
                             },
                             icon: Icon(Icons.add, size: 22.w),
                           ),
